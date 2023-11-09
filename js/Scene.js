@@ -11,6 +11,7 @@ class Platform {
 class Scene extends Phaser.Scene {
   inputs;
   player;
+  bullet;
 
   //-------------------------------------------------------------------------
   preload() {
@@ -253,6 +254,23 @@ class Scene extends Phaser.Scene {
       this.playerTwoInst.performAttack(this.playerOneInst);
       console.log(this.playerOneInst.hitPoints);
       // console.log(this.playerTwoInst.hitPoints);
+    }
+
+    if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown) {
+      console.log("ok");
+      this.spriteBullet = this.add.sprite(
+        this.playerTwoInst.x + 10,
+        this.playerTwoInst.y,
+        "arrow"
+      );
+      this.bullet = new Bullet(
+        { scene: this },
+        this.playerTwoInst.x + 10,
+        this.playerTwoInst.y,
+        6,
+        15,
+        this.spriteBullet
+      );
     }
 
     // this.playerOneInst.img = this.physics.add.image(this.playerOneInst.x, this.playerOneInst.y, "playerOne")
