@@ -18,52 +18,37 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.attack = attack;
     this.rangeAttack = rangeAttack;
-    console.log(config.scene);
+    // console.log(config.scene);
   }
 
   moveRight() {
     this.x += 5;
-    this.setScale(1, 1);
+    this.img.setScale(1, 1.3);
     this.img.x = this.x;
     // console.log(this.x);
   }
 
   moveLeft() {
     this.x -= 5;
-    this.setScale(-1, 1);
+    this.img.setScale(-1, 1.3);
     this.img.x = this.x;
     // console.log(this.x);
   }
-
-  // moveUp() {
-  //   if (!this.isJumping) {
-  //     this.isJumping = false;
-  //     this.y = 100;
-  //     this.img.y = this.y;
-  //     // console.log(this.y);
-  //   }
-  // }
 
   moveUp() {
     if (!this.isJumping) {
       this.isJumping = true;
       this.img.setVelocityY(-330);
     }
-    console.log(this.img.body.velocity);
-    console.log(this.img.body.velocity.y == 0);
-    // this.isJumping = true;
     if (this.img.body.velocity.y == 0) {
-      console.log("Tetrapute");
       this.isJumping = false;
     }
   }
   //-----------------------------------------------------------------
 
   performAttack(targetPlayer) {
-    // Vérifie la distance entre le joueur attaquant et le joueur cible
     const distance = Phaser.Math.Distance.BetweenPoints(this, targetPlayer);
 
-    // N'inflige des dégâts que si les joueurs sont à portée d'attaque
     if (distance <= this.rangeAttack) {
       targetPlayer.takeDamage(this.attack);
     }
@@ -74,9 +59,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.hitPoints <= 0) {
       this.life -= 1;
       this.hitPoints = 100;
-      console.log(this.life);
+      // console.log(this.life);
       if (this.life <= 0) {
-        console.log("Game Over");
+        // console.log("Game Over");
       }
     }
 
@@ -96,7 +81,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     } else if (this.name === "Samouraï") {
       switch (this.life) {
         case 2:
-          console.log(this.scene.playerOneInst.life);
+          // console.log(this.scene.playerOneInst.life);
           this.scene.lifeThree.setVisible(false);
           break;
         case 1:
@@ -125,12 +110,32 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
   create() {}
 
-  update() {
-    // if (this.isJumping && this.body.onFloor()) {
-    //   console.log("aled");
-    //   this.isJumping = false;
-    //   // Mettez à jour la position y du sprite ici
-    //   // this.img.y = this.y;
-    // }
-  }
+  update() {}
 }
+
+let damageScrum;
+
+function getScrumAttacks() {
+  return new Promise((resolve, reject) => {
+    fetch("PHP/get-scrum-attacks.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        globalData = data;
+        damageScrum = data[0].damage;
+
+        resolve(data);
+        console.log(damageScrum);
+      })
+      .catch((error) => {
+        console.log("There has been a problem:", error);
+        reject(error);
+      });
+  });
+}
+
+getScrumAttacks();

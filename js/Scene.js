@@ -11,11 +11,17 @@ class Platform {
 class Scene extends Phaser.Scene {
   inputs;
   player;
+  bullet;
+  lastArrowTime = 0;
 
   //-------------------------------------------------------------------------
   preload() {
     //backGround
     this.load.image("scene", "assets/scene.jpg");
+
+    //audio
+    // this.load.audio("soundGame", "../assets/audio/game.mp3");
+    // this.load.audio("soundJump", "../assets/audio/jump.mp3");
 
     //platform
     this.load.image("platformOne", "assets/platforms.png");
@@ -68,15 +74,18 @@ class Scene extends Phaser.Scene {
     this.inputs = this.input.keyboard.createCursorKeys();
     this.add.image(640, 360, "scene");
 
-    //platform-1
+    //audio
+    // const musicGame = this.sound.add("soundGame");
+    // musicGame.play();
 
+    //platform-1
     let platformInstOne = new Platform(200, 300, "Poil", "");
     platformInstOne.img = this.physics.add.staticImage(
       platformInstOne.x,
       platformInstOne.y,
       "platformOne"
     );
-    console.log(platformInstOne);
+    // console.log(platformInstOne);
 
     //platform-2
 
@@ -86,7 +95,7 @@ class Scene extends Phaser.Scene {
       platformInstTwo.y,
       "platformTwo"
     );
-    console.log(platformInstTwo);
+    // console.log(platformInstTwo);
 
     //platform-3
 
@@ -96,7 +105,7 @@ class Scene extends Phaser.Scene {
       platformInstThree.y,
       "platformThree"
     );
-    console.log(platformInstThree);
+    // console.log(platformInstThree);
 
     //-------------------------------------------------
 
@@ -124,7 +133,7 @@ class Scene extends Phaser.Scene {
     this.playerOneInst.img.setScale(1.3);
 
     //life
-    let xLife1 = 100;
+    let xLife1 = 1075;
     let yLife1 = 660;
 
     this.lifeOne = this.physics.add.staticImage(xLife1, yLife1, "heart");
@@ -147,7 +156,7 @@ class Scene extends Phaser.Scene {
     this.playerTwoInst = new Player(
       { scene: this },
       1050,
-      200,
+      190,
       3,
       "Samouraï",
       100,
@@ -162,7 +171,7 @@ class Scene extends Phaser.Scene {
       "playerTwo"
     );
 
-    this.playerTwoInst.img.setScale(1.3);
+    this.playerTwoInst.img.setScale(1.4);
 
     //life
     let xLife2 = 35;
@@ -181,7 +190,7 @@ class Scene extends Phaser.Scene {
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    console.log(this.playerOneInst);
+    // console.log(this.playerOneInst);
 
     //collides player-1 & player-2
     // this.physics.add.collider(
@@ -210,12 +219,15 @@ class Scene extends Phaser.Scene {
         fill: "#fff",
       }
     );
+    const SPACEBAR = Phaser.Input.Keyboard.KeyCodes.SPACEBAR;
   }
 
   //-------------------------------------------------------------------------
 
   update() {
     this.player?.update();
+
+    //const musicJump = this.sound.add("soundJump");
 
     //Controls player-1
 
@@ -228,13 +240,14 @@ class Scene extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown) {
+      //musicJump.play();
       this.playerOneInst.moveUp();
     }
 
     if (this.cursors.down.isDown) {
       this.playerOneInst.performAttack(this.playerTwoInst);
       // console.log(this.playerOneInst.hitPoints);
-      console.log(this.playerTwoInst.hitPoints);
+      // console.log(this.playerTwoInst.hitPoints);
     }
 
     //Controls player-2
@@ -248,13 +261,82 @@ class Scene extends Phaser.Scene {
 
     if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z).isDown) {
       this.playerTwoInst.moveUp();
+      // console.log(this.playerTwoInst.img.y);
     }
     if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown) {
       this.playerTwoInst.performAttack(this.playerOneInst);
-      console.log(this.playerOneInst.hitPoints);
+      // console.log(this.playerOneInst.hitPoints);
       // console.log(this.playerTwoInst.hitPoints);
     }
 
-    // this.playerOneInst.img = this.physics.add.image(this.playerOneInst.x, this.playerOneInst.y, "playerOne")
+    const currentTime = this.time.now;
+
+    if (
+      this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown &&
+      currentTime > this.lastArrowTime + 2000
+    ) {
+      // Create a new arrow (bullet) for playerTwo
+
+      this.spriteBullet = this.add.sprite(
+        this.playerTwoInst.x + 10,
+        this.playerTwoInst.img.y + 30,
+        "arrow"
+      );
+
+      if (this.playerTwoInst.img.setScale(-1, 1.3)) {
+        console.log("ok");
+        this.spriteBullet.setScale(-1, 1);
+        console.log("oki");
+      } else {
+        this.spriteBullet.setScale(1, 1);
+      }
+
+      this.bullet = new Bullet(
+        { scene: this },
+        this.playerTwoInst.x + 10,
+        this.playerTwoInst.img.y + 30,
+        6,
+        15,
+        this.spriteBullet
+      );
+
+      // Update the last arrow creation time
+      this.lastArrowTime = currentTime;
+    }
   }
 }
+
+// ----------------------- PHP -------------------------
+let hp;
+let life;
+let speedPlayer;
+let name;
+let img1;
+let img2;
+
+function getPlayers() {
+  return new Promise((resolve, reject) => {
+    fetch("PHP/get-all-Player.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        globalData = data;
+        hp = data[0].hp;
+        life = data[0].life;
+        speedPlayer = data[0].speed;
+        name = data[0].name;
+        resolve(data);
+        console.log(hp, life, speedPlayer, name);
+      })
+      .catch((error) => {
+        console.log("There has been a problem:", error);
+        reject(error);
+      });
+  });
+}
+
+getPlayers();
