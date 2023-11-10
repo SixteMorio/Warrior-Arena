@@ -18,7 +18,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.attack = attack;
     this.rangeAttack = rangeAttack;
-    console.log(config.scene);
+    // console.log(config.scene);
   }
 
   moveRight() {
@@ -49,11 +49,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       this.isJumping = true;
       this.img.setVelocityY(-330);
     }
-    console.log(this.img.body.velocity);
-    console.log(this.img.body.velocity.y == 0);
+    // console.log(this.img.body.velocity);
+    // console.log(this.img.body.velocity.y == 0);
     // this.isJumping = true;
     if (this.img.body.velocity.y == 0) {
-      console.log("Tetrapute");
+      // console.log("Tetrapute");
       this.isJumping = false;
     }
   }
@@ -74,9 +74,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.hitPoints <= 0) {
       this.life -= 1;
       this.hitPoints = 100;
-      console.log(this.life);
+      // console.log(this.life);
       if (this.life <= 0) {
-        console.log("Game Over");
+        // console.log("Game Over");
       }
     }
 
@@ -96,7 +96,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     } else if (this.name === "Samouraï") {
       switch (this.life) {
         case 2:
-          console.log(this.scene.playerOneInst.life);
+          // console.log(this.scene.playerOneInst.life);
           this.scene.lifeThree.setVisible(false);
           break;
         case 1:
@@ -125,12 +125,41 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
   create() {}
 
-  update() {
-    // if (this.isJumping && this.body.onFloor()) {
-    //   console.log("aled");
-    //   this.isJumping = false;
-    //   // Mettez à jour la position y du sprite ici
-    //   // this.img.y = this.y;
-    // }
-  }
+  update() {}
 }
+
+let hp;
+let life;
+let speed;
+let name;
+let img1;
+let img2;
+
+function getNames() {
+  return new Promise((resolve, reject) => {
+    fetch("PHP/main.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        globalData = data;
+        hp = data[0].hp;
+        life = data[0].life;
+        speed = data[0].speed;
+        name = data[0].name;
+        img = data[0].img;
+        img2 = data[1].img;
+        resolve(data);
+        console.log(hp, life);
+      })
+      .catch((error) => {
+        console.log("There has been a problem:", error);
+        reject(error);
+      });
+  });
+}
+
+getNames();

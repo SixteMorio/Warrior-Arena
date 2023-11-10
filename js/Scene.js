@@ -12,6 +12,7 @@ class Scene extends Phaser.Scene {
   inputs;
   player;
   bullet;
+  lastArrowTime = 0;
 
   //-------------------------------------------------------------------------
   preload() {
@@ -77,7 +78,7 @@ class Scene extends Phaser.Scene {
       platformInstOne.y,
       "platformOne"
     );
-    console.log(platformInstOne);
+    // console.log(platformInstOne);
 
     //platform-2
 
@@ -87,7 +88,7 @@ class Scene extends Phaser.Scene {
       platformInstTwo.y,
       "platformTwo"
     );
-    console.log(platformInstTwo);
+    // console.log(platformInstTwo);
 
     //platform-3
 
@@ -97,7 +98,7 @@ class Scene extends Phaser.Scene {
       platformInstThree.y,
       "platformThree"
     );
-    console.log(platformInstThree);
+    // console.log(platformInstThree);
 
     //-------------------------------------------------
 
@@ -125,7 +126,7 @@ class Scene extends Phaser.Scene {
     this.playerOneInst.img.setScale(1.3);
 
     //life
-    let xLife1 = 100;
+    let xLife1 = 1075;
     let yLife1 = 660;
 
     this.lifeOne = this.physics.add.staticImage(xLife1, yLife1, "heart");
@@ -182,7 +183,7 @@ class Scene extends Phaser.Scene {
     //  Input Events
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    console.log(this.playerOneInst);
+    // console.log(this.playerOneInst);
 
     //collides player-1 & player-2
     // this.physics.add.collider(
@@ -211,6 +212,7 @@ class Scene extends Phaser.Scene {
         fill: "#fff",
       }
     );
+    const SPACEBAR = Phaser.Input.Keyboard.KeyCodes.SPACEBAR;
   }
 
   //-------------------------------------------------------------------------
@@ -235,7 +237,7 @@ class Scene extends Phaser.Scene {
     if (this.cursors.down.isDown) {
       this.playerOneInst.performAttack(this.playerTwoInst);
       // console.log(this.playerOneInst.hitPoints);
-      console.log(this.playerTwoInst.hitPoints);
+      // console.log(this.playerTwoInst.hitPoints);
     }
 
     //Controls player-2
@@ -249,30 +251,44 @@ class Scene extends Phaser.Scene {
 
     if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Z).isDown) {
       this.playerTwoInst.moveUp();
+      // console.log(this.playerTwoInst.img.y);
     }
     if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown) {
       this.playerTwoInst.performAttack(this.playerOneInst);
-      console.log(this.playerOneInst.hitPoints);
+      // console.log(this.playerOneInst.hitPoints);
       // console.log(this.playerTwoInst.hitPoints);
     }
 
-    if (this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown) {
-      console.log("ok");
+    const currentTime = this.time.now;
+
+    if (
+      this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown &&
+      currentTime > this.lastArrowTime + 2000
+    ) {
+      // Create a new arrow (bullet) for playerTwo
       this.spriteBullet = this.add.sprite(
         this.playerTwoInst.x + 10,
-        this.playerTwoInst.y,
+        this.playerTwoInst.img.y,
         "arrow"
       );
       this.bullet = new Bullet(
         { scene: this },
         this.playerTwoInst.x + 10,
-        this.playerTwoInst.y,
+        this.playerTwoInst.img.y,
         6,
         15,
         this.spriteBullet
       );
+
+      // Update the last arrow creation time
+      this.lastArrowTime = currentTime;
     }
 
     // this.playerOneInst.img = this.physics.add.image(this.playerOneInst.x, this.playerOneInst.y, "playerOne")
+    if (this.bullet) {
+      this.bullet.update();
+    }
   }
 }
+
+// ----------------------- PHP -------------------------
