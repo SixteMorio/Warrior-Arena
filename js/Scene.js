@@ -117,8 +117,8 @@ class Scene extends Phaser.Scene {
       200,
       3,
       "Ronin",
-      100,
-      100,
+      "",
+      200,
       5,
       80
     );
