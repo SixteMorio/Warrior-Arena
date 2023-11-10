@@ -23,47 +23,32 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
   moveRight() {
     this.x += 5;
-    this.setScale(1, 1);
+    this.img.setScale(1, 1.3);
     this.img.x = this.x;
     // console.log(this.x);
   }
 
   moveLeft() {
     this.x -= 5;
-    this.setScale(-1, 1);
+    this.img.setScale(-1, 1.3);
     this.img.x = this.x;
     // console.log(this.x);
   }
-
-  // moveUp() {
-  //   if (!this.isJumping) {
-  //     this.isJumping = false;
-  //     this.y = 100;
-  //     this.img.y = this.y;
-  //     // console.log(this.y);
-  //   }
-  // }
 
   moveUp() {
     if (!this.isJumping) {
       this.isJumping = true;
       this.img.setVelocityY(-330);
     }
-    // console.log(this.img.body.velocity);
-    // console.log(this.img.body.velocity.y == 0);
-    // this.isJumping = true;
     if (this.img.body.velocity.y == 0) {
-      // console.log("Tetrapute");
       this.isJumping = false;
     }
   }
   //-----------------------------------------------------------------
 
   performAttack(targetPlayer) {
-    // Vérifie la distance entre le joueur attaquant et le joueur cible
     const distance = Phaser.Math.Distance.BetweenPoints(this, targetPlayer);
 
-    // N'inflige des dégâts que si les joueurs sont à portée d'attaque
     if (distance <= this.rangeAttack) {
       targetPlayer.takeDamage(this.attack);
     }
@@ -128,16 +113,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   update() {}
 }
 
-let hp;
-let life;
-let speed;
-let name;
-let img1;
-let img2;
+let damageScrum;
 
-function getNames() {
+function getScrumAttacks() {
   return new Promise((resolve, reject) => {
-    fetch("PHP/main.php")
+    fetch("PHP/get-scrum-attacks.php")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -146,14 +126,10 @@ function getNames() {
       })
       .then((data) => {
         globalData = data;
-        hp = data[0].hp;
-        life = data[0].life;
-        speed = data[0].speed;
-        name = data[0].name;
-        img = data[0].img;
-        img2 = data[1].img;
+        damageScrum = data[0].damage;
+
         resolve(data);
-        console.log(hp, life);
+        console.log(damageScrum);
       })
       .catch((error) => {
         console.log("There has been a problem:", error);
@@ -162,4 +138,4 @@ function getNames() {
   });
 }
 
-getNames();
+getScrumAttacks();

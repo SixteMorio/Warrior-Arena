@@ -3,9 +3,10 @@ class Bullet extends Phaser.GameObjects.Sprite {
 
   constructor(config, x, y, speed, damage, sprite) {
     super(config.scene);
+    config.scene.physics.add.existing(this);
 
     // config.scene.physics.world.enable(this);
-    config.scene.add.existing(this);
+    // config.scene.add.existing(this);
 
     this.x = x;
     this.y = y;
@@ -15,20 +16,14 @@ class Bullet extends Phaser.GameObjects.Sprite {
     this.sprite = sprite;
   }
   update() {
-    // Move the arrow
-    this.x += this.speed;
-    console.log(this.speed);
+    console.log("Bullet update");
 
-    // Check if the arrow is out of the screen
+    this.x += this.speed;
+
     if (this.x > this.scene.game.config.width) {
-      // Destroy the arrow if it's outside the screen
       this.destroy();
     }
 
-    // You may want to add collision logic here
-    // For example, check if the arrow collides with something and handle it
-
-    // For simplicity, let's assume it collides with the player and reduce their hitPoints
     this.scene.physics.overlap(
       this,
       this.scene.playerOneInst.img,
@@ -39,33 +34,40 @@ class Bullet extends Phaser.GameObjects.Sprite {
   }
 
   handleCollision(bullet, player) {
-    // Reduce player hitPoints
-    this.scene.playerOneInst.hitPoints -= this.damage;
+    // Réduisez les points de vie du joueur
+    this.scene.playerOneInst.takeDamage(this.damage);
 
-    // Destroy the arrow
+    // Détruisez la flèche
     this.destroy();
   }
 }
 
-// function getNames() {
-//   return new Promise((resolve, reject) => {
-//     fetch("PHP/main.php")
-//       .then((response) => {
-//         if (!response.ok) {
-//           throw new Error("Network response was not ok");
-//         }
-//         return response.json();
-//       })
-//       .then((data) => {
-//         globalData = data;
-//         resolve(data);
-//         console.log(hp, life);
-//       })
-//       .catch((error) => {
-//         console.log("There has been a problem:", error);
-//         reject(error);
-//       });
-//   });
-// }
+//------------------------ PHP ------------------------------
 
-// getNames();
+let damage;
+let speedBullet;
+
+function getRangeAttack() {
+  return new Promise((resolve, reject) => {
+    fetch("PHP/get-range-attack.php")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        globalData = data;
+        damage = data[0].damage;
+        speedBullet = data[0].speed;
+        resolve(data);
+        console.log(damage, speedBullet);
+      })
+      .catch((error) => {
+        console.log("There has been a problem:", error);
+        reject(error);
+      });
+  });
+}
+
+getRangeAttack();
