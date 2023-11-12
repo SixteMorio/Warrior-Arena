@@ -272,7 +272,7 @@ class Scene extends Phaser.Scene {
     const currentTime = this.time.now;
 
     if (
-      this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S).isDown &&
+      this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.T).isDown &&
       currentTime > this.lastArrowTime + 2000
     ) {
       // Create a new arrow (bullet) for playerTwo
